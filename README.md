@@ -269,65 +269,7 @@ function calculateTotal() {
     total += large * 100 * 0.64; // 20% reduction per tier
 
     return total;
-}
-
-// Function to calculate 12-month plan with 20% surcharge
-function calculateMonthly(total) {
-    const surchargeRate = 0.20;
-    const totalWithSurcharge = total * (1 + surchargeRate);
-    const monthly = (totalWithSurcharge / 12).toFixed(2);
-    return { monthly, totalWithSurcharge: totalWithSurcharge.toFixed(2) };
-}
-
-const paymentCheckbox = document.getElementById("paymentPlan");
-const paypalContainer = document.getElementById("paypal-button-container");
-const monthlyPaymentText = document.getElementById("monthlyPayment");
-
-function updatePaymentPlan() {
-    const total = calculateTotal();
-    if (paymentCheckbox.checked) {
-        const { monthly, totalWithSurcharge } = calculateMonthly(total);
-        monthlyPaymentText.textContent = `Monthly: $${monthly} (Total with 20% surcharge: $${totalWithSurcharge})`;
-
-        paypalContainer.style.display = 'block';
-
-        // Render PayPal button
-        paypal.Buttons({
-            createSubscription: function(data, actions) {
-                return actions.subscription.create({
-                    'plan_id': 'P-62W7028038617250H' // Replace with your real Plan ID
-                });
-            },
-            onApprove: function(data, actions) {
-                alert('Subscription completed! ID: ' + data.subscriptionID);
-            }
-        }).render('#paypal-button-container');
-
-    } else {
-        monthlyPaymentText.textContent = '';
-        paypalContainer.style.display = 'none';
-    }
-}
-
-// Update PayPal button when checkbox changes or bed quantities change
-paymentCheckbox.addEventListener('change', updatePaymentPlan);
-document.getElementById('smallBeds').addEventListener('input', updatePaymentPlan);
-document.getElementById('mediumBeds').addEventListener('input', updatePaymentPlan);
-document.getElementById('largeBeds').addEventListener('input', updatePaymentPlan);
-
-// Optional: handle form submission
-document.getElementById('onboardingForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    alert('Form submitted!'); // You can integrate with Formspree or your backend here
-});
-</script>
-
-</body>
-</html>
-// Thank you on submit
-document.getElementById('landscapingForm').addEventListener('submit', function(e){
-    alert('Thank you! Your request has been submitted.');
-});
+}});
 </script>
 </body>
 </html>
