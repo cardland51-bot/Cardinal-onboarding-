@@ -240,7 +240,90 @@ document.querySelector(`input[name="${id}"]`);
 
 // Initial calculation
 window.addEventListener('DOMContentLoaded', calculateTotal);
+<label>Medium Beds (2 parking spaces): <input type="number" id="mediumBeds" min="0" value="0"></label>
+  <label>Large Beds (3 parking spaces): <input type="number" id="largeBeds" min="0" value="0"></label>
 
+  <label>
+    <input type="checkbox" id="paymentPlan">
+    Pay over 12 months (20% surcharge)
+  </label>
+
+  <p id="monthlyPayment" style="font-weight:bold;"></p>
+
+  <button type="submit">Submit</button>
+</form>
+
+<div id="paypal-button-container" style="display:none;"></div>
+
+<script>
+// Function to calculate total based on bed sizes
+function calculateTotal() {
+    const small = parseInt(document.getElementById('smallBeds').value) || 0;
+    const medium = parseInt(document.getElementById('mediumBeds').value) || 0;
+    const large = parseInt(document.getElementById('largeBeds').value) || 0;
+
+    // Prices based on your earlier rules
+    let total = 0;
+    total += small * 100;
+    total += medium * 100 * 0.8; // 20% reduction from base
+    total += large * 100 * 0.64; // 20% reduction per tier
+
+    return total;
+}
+
+// Function to calculate 12-month plan with 20% surcharge
+function calculateMonthly(total) {
+    const surchargeRate = 0.20;
+    const totalWithSurcharge = total * (1 + surchargeRate);
+    const monthly = (totalWithSurcharge / 12).toFixed(2);
+    return { monthly, totalWithSurcharge: totalWithSurcharge.toFixed(2) };
+}
+
+const paymentCheckbox = document.getElementById("paymentPlan");
+const paypalContainer = document.getElementById("paypal-button-container");
+const monthlyPaymentText = document.getElementById("monthlyPayment");
+
+function updatePaymentPlan() {
+    const total = calculateTotal();
+    if (paymentCheckbox.checked) {
+        const { monthly, totalWithSurcharge } = calculateMonthly(total);
+        monthlyPaymentText.textContent = `Monthly: $${monthly} (Total with 20% surcharge: $${totalWithSurcharge})`;
+
+        paypalContainer.style.display = 'block';
+
+        // Render PayPal button
+        paypal.Buttons({
+            createSubscription: function(data, actions) {
+                return actions.subscription.create({
+                    'plan_id': 'P-62W7028038617250H' // Replace with your real Plan ID
+                });
+            },
+            onApprove: function(data, actions) {
+                alert('Subscription completed! ID: ' + data.subscriptionID);
+            }
+        }).render('#paypal-button-container');
+
+    } else {
+        monthlyPaymentText.textContent = '';
+        paypalContainer.style.display = 'none';
+    }
+}
+
+// Update PayPal button when checkbox changes or bed quantities change
+paymentCheckbox.addEventListener('change', updatePaymentPlan);
+document.getElementById('smallBeds').addEventListener('input', updatePaymentPlan);
+document.getElementById('mediumBeds').addEventListener('input', updatePaymentPlan);
+document.getElementById('largeBeds').addEventListener('input', updatePaymentPlan);
+
+// Optional: handle form submission
+document.getElementById('onboardingForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    alert('Form submitted!'); // You can integrate with Formspree or your backend here
+});
+</script>
+
+</body>
+</html>
 // Thank you on submit
 document.getElementById('landscapingForm').addEventListener('submit', function(e){
     alert('Thank you! Your request has been submitted.');
